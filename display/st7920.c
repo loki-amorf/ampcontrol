@@ -149,23 +149,15 @@ ISR (TIMER0_OVF_vect)
 void st7920Init(void)
 {
 	// Set control and data lines as outputs
-	DDR(ST7920_RW) |= ST7920_RW_LINE;
 	DDR(ST7920_RS) |= ST7920_RS_LINE;
 	DDR(ST7920_E) |= ST7920_E_LINE;
 	DDR(ST7920_PSB) |= ST7920_PSB_LINE;
-	DDR(ST7920_RST) |= ST7920_RST_LINE;
 	st7920SetDdrOut();
 
-	PORT(ST7920_RW) &= ~ST7920_RW_LINE;
 	PORT(ST7920_RS) &= ~ST7920_RS_LINE;
 	PORT(ST7920_E) &= ~ST7920_E_LINE;
 	// Switch display to parallel mode
 	PORT(ST7920_PSB) |= ST7920_PSB_LINE;
-
-	// Reset display
-	PORT(ST7920_RST) &= ~ST7920_RST_LINE;
-	_delay_us(1);
-	PORT(ST7920_RST) |= ST7920_RST_LINE;
 
 	// Init display in graphics mode
 	_delay_ms(40);

@@ -69,8 +69,6 @@ void nextRcCmd(void);
 void switchTestMode(uint8_t index);
 void showRcInfo(void);
 
-void showTemp(void);
-
 void showRadio(uint8_t tune);
 
 void showMute(void);

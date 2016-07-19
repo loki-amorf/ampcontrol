@@ -3,7 +3,6 @@
 #include <util/delay.h>
 #include "display.h"
 #include "tuner/tuner.h"
-#include "temp.h"
 #include "adc.h"
 #include "alarm.h"
 
@@ -77,7 +76,7 @@ uint8_t getAction(void)
 		break;
 
 	case CMD_BTN_1_LONG:
-		if (dispMode == MODE_TEST || dispMode == MODE_TEMP)
+		if (dispMode == MODE_TEST)
 			action = ACTION_ZERO_DISPLAYTIME;
 		else
 			action = CMD_RC_BRIGHTNESS;
@@ -102,9 +101,6 @@ uint8_t getAction(void)
 
 	case CMD_BTN_12_LONG:
 		action = ACTION_TESTMODE;
-		break;
-	case CMD_BTN_13_LONG:
-		action = ACTION_TEMPMODE;
 		break;
 	default:
 		break;
@@ -139,16 +135,9 @@ uint8_t getAction(void)
 		if (action != ACTION_NEXT_RC_CMD && action != ACTION_ZERO_DISPLAYTIME)
 			action = ACTION_NOACTION;
 	}
-	/* Disable actions except ZERO_DISPLAY_TIME in temp mode */
-	if (dispMode == MODE_TEMP) {
-		if (action != ACTION_NOACTION)
-			setDisplayTime(DISPLAY_TIME_TEMP);
-		if (action != ACTION_ZERO_DISPLAYTIME)
-			action = ACTION_NOACTION;
-	}
-	/* Disable actions except POWERON, TESTMODE and TEMPMODE in standby mode */
+	/* Disable actions except POWERON and TESTMODE in standby mode */
 	if (dispMode == MODE_STANDBY) {
-		if (action != ACTION_EXIT_STANDBY && action != ACTION_TESTMODE && action != ACTION_TEMPMODE)
+		if (action != ACTION_EXIT_STANDBY && action != ACTION_TESTMODE)
 			action = ACTION_NOACTION;
 	}
 	/* Disable most action in time edit mode */
@@ -372,15 +361,7 @@ void handleAction(uint8_t action)
 			break;
 		}
 		break;
-	case ACTION_TEMPMODE:
-		switch (dispMode) {
-		case MODE_STANDBY:
-			dispMode = MODE_TEMP;
 			setWorkBrightness();
-			setDisplayTime(DISPLAY_TIME_TEMP);
-			break;
-		}
-		break;
 	default:
 		if (!aproc.input && tuner.ic) {
 			switch (action) {
@@ -448,10 +429,6 @@ void handleEncoder(int8_t encCnt)
 			break;
 		case MODE_TEST:
 			setDisplayTime(DISPLAY_TIME_TEST);
-			break;
-		case MODE_TEMP:
-			changeTempTH(encCnt);
-			setDisplayTime(DISPLAY_TIME_TEMP);
 			break;
 		case MODE_TIME_EDIT:
 			rtcChangeTime(encCnt);
@@ -538,8 +515,6 @@ void handleExitDefaultMode(void)
 		case MODE_STANDBY:
 			setStbyBrightness();
 			break;
-		case MODE_TEMP:
-			saveTempParams();
 		case MODE_TEST:
 			dispMode = MODE_STANDBY;
 			break;
@@ -559,7 +534,7 @@ void handleTimers(void)
 	stbyTimer = getStbyTimer();
 	silenceTimer = getSilenceTimer();
 
-	if (dispMode != MODE_STANDBY && dispMode != MODE_TEST && dispMode != MODE_TEMP) {
+	if (dispMode != MODE_STANDBY && dispMode != MODE_TEST) {
 		if (getSignalLevel() > 5) {
 			enableSilenceTimer();
 			silenceTimer = getSilenceTimer();
@@ -595,9 +570,6 @@ void showScreen(void)
 		break;
 	case MODE_TEST:
 		showRcInfo();
-		break;
-	case MODE_TEMP:
-		showTemp();
 		break;
 	case MODE_SPECTRUM:
 		showSpectrum();

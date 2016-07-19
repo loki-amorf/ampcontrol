@@ -13,9 +13,9 @@ void rcInit(void)
 	DDR(RC) &= ~RC_LINE;							// Set PD3 (INT1) to input
 	TCCR1A = 0;										// Reset Timer1 counter
 	TCCR1B = (1<<CS11) | (1<<CS10);					// Set Timer1 prescaler to 64 (250kHz)
-	GICR |= (1<<INT1);								// Enable INT3 interrupt
+	EIMSK |= (1<<INT0);								// Enable INT0 interrupt
 
-	TIMSK = (1<<TOIE1);								// Enable Timer1 overflow interrupt
+	TIMSK1 = (1<<TOIE1);							// Enable Timer1 overflow interrupt
 
 	return;
 }
@@ -28,7 +28,7 @@ ISR(TIMER1_OVF_vect)								// Overflow every 1/(250kHz/65536) = 262ms
 	return;
 }
 
-ISR(INT1_vect)
+ISR(INT0_vect)
 {
 	static uint16_t tcnt = 0;
 	uint16_t delay = TCNT1 - tcnt;					// Delay since previous interrupt

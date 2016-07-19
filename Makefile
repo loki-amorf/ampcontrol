@@ -1,8 +1,8 @@
-DISPLAY = KS0108A
+DISPLAY = KS0108
 
-TARG = ampcontrol_m32_$(shell echo $(DISPLAY) | tr A-Z a-z)
+TARG = ampcontrol_m328_$(shell echo $(DISPLAY) | tr A-Z a-z)
 
-MCU = atmega32
+MCU = atmega328
 F_CPU = 16000000L
 
 AUDIO_SRC = $(wildcard audio/*.c)
@@ -31,9 +31,9 @@ LDFLAGS = $(DEBUG) -mmcu=$(MCU) -Wl,-gc-sections
 # Main definitions
 DEFINES  += -D$(DISPLAY)
 # Supported tuners
-DEFINES += -D_TEA5767 -D_RDA580X -D_TUX032 -D_LM7001 -D_RDS
+DEFINES += -D_TEA5767 -D_RDA580X -D_TUX032 -D_RDS
 # Supported audioprocessors
-DEFINES += -D_TDA7439 -D_TDA731X -D_TDA7448 -D_PT232X -D_TEA6330 -D_PGA2310 -D_RDA580X_AUDIO
+DEFINES += -D_TDA7439 -D_TDA731X -D_TDA7448 -D_PT232X -D_TEA6330 -D_RDA580X_AUDIO
 
 CC = avr-gcc
 OBJCOPY = avr-objcopy

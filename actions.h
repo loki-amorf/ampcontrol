@@ -8,7 +8,6 @@
 
 /* Timers for different screens */
 #define DISPLAY_TIME_TEST					20000U
-#define DISPLAY_TIME_TEMP					20000U
 #define DISPLAY_TIME_GAIN					3000U
 #define DISPLAY_TIME_GAIN_START				1500U
 #define DISPLAY_TIME_TIME					3000U
@@ -29,7 +28,6 @@ enum {
 	ACTION_ZERO_DISPLAYTIME,
 	ACTION_EXIT_STANDBY,
 	ACTION_TESTMODE,
-	ACTION_TEMPMODE,
 
 	ACTION_NOACTION
 };
@@ -55,8 +53,7 @@ enum {
 	MODE_TEST,
 
 	MODE_BR,
-	MODE_TEMP,
-	
+
 	MODE_END
 };
 

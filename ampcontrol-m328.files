@@ -2,8 +2,6 @@ Makefile
 
 audio/audio.c
 audio/audio.h
-audio/pga2310.c
-audio/pga2310.h
 audio/pt232x.c
 audio/pt232x.h
 audio/rda580xaudio.c
@@ -26,17 +24,11 @@ display/gdfb.h
 display/icons-24.c
 display/icons-32.c
 display/icons.h
-display/ks0066.c
-display/ks0066.h
 display/ks0108.c
 display/ks0108.h
-display/ls020.c
-display/ls020.h
 display/st7920.c
 display/st7920.h
 
-tuner/lm7001.c
-tuner/lm7001.h
 tuner/rda580x.c
 tuner/rda580x.h
 tuner/rds.c
@@ -56,8 +48,6 @@ alarm.c
 alarm.h
 display.c
 display.h
-ds18x20.c
-ds18x20.h
 eeprom.h
 fft.c
 fft.h
@@ -71,5 +61,3 @@ remote.c
 remote.h
 rtc.c
 rtc.h
-temp.c
-temp.h

@@ -7,8 +7,8 @@
 #include "icons.h"
 
 /* Display selection  */
-#if !defined(ST7920) && !defined(KS0108A) && !defined(KS0108B)
-#define KS0108A
+#if !defined(ST7920) && !defined(KS0108)
+#define KS0108
 #endif
 
 enum {

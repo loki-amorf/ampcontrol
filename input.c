@@ -18,7 +18,6 @@ static volatile uint8_t btnPrev = ENC_0;
 
 static volatile uint16_t displayTime;
 
-static volatile uint16_t sensTimer;					/* Timer of temperature measuring process */
 static volatile int16_t stbyTimer = STBY_TIMER_OFF;	/* Standby timer */
 static volatile uint16_t secTimer;					/* 1 second timer */
 static volatile uint8_t clockTimer;
@@ -40,10 +39,11 @@ void rcCodesInit(void)
 void inputInit(void)
 {
 	/* Set timer prescaller to 128 (125 kHz) and reset on match*/
-	TCCR2 = ((1<<CS22) | (0<<CS21) | (1<<CS20) | (1<<WGM21));
-	OCR2 = 125;										/* 125000/125 => 1000 polls/sec */
+	TCCR2B = (1<<CS22) | (0<<CS21) | (1<<CS20);
+	TCCR2A = (1<<WGM21);
+	OCR2A = 125;										/* 125000/125 => 1000 polls/sec */
 	TCNT2 = 0;										/* Reset timer value */
-	TIMSK |= (1<<OCIE2);							/* Enable timer compare match interrupt */
+	TIMSK2 |= (1<<OCIE2A);							/* Enable timer compare match interrupt */
 
 	rcCodesInit();
 
@@ -52,7 +52,6 @@ void inputInit(void)
 
 	encCnt = 0;
 	cmdBuf = CMD_RC_END;
-	sensTimer = 0;
 
 	return;
 }
@@ -68,7 +67,7 @@ static uint8_t rcCmdIndex(uint8_t cmd)
 	return CMD_RC_END;
 }
 
-ISR (TIMER2_COMP_vect)
+ISR (TIMER2_COMPA_vect)
 {
 	static int16_t btnCnt = 0;						/* Buttons press duration value */
 	static uint16_t rcTimer;
@@ -116,9 +115,6 @@ ISR (TIMER2_COMP_vect)
 					break;
 				case BTN_D0 | BTN_D1:
 					cmdBuf = CMD_BTN_12_LONG;
-					break;
-				case BTN_D0 | BTN_D2:
-					cmdBuf = CMD_BTN_13_LONG;
 					break;
 				}
 			} else if (!encRes) {
@@ -211,9 +207,6 @@ ISR (TIMER2_COMP_vect)
 		/* Silence timer */
 		if (silenceTimer >= 0)
 			silenceTimer--;
-		/* Timer of temperature measurement */
-		if (sensTimer)
-			sensTimer--;
 	}
 
 	/* Timer clock update */
@@ -284,18 +277,6 @@ void setDisplayTime(uint16_t value)
 uint16_t getDisplayTime(void)
 {
 	return displayTime;
-}
-
-uint8_t getSensTimer(void)
-{
-	return sensTimer;
-}
-
-void setSensTimer(uint8_t val)
-{
-	sensTimer = val;
-
-	return;
 }
 
 int16_t getStbyTimer(void)

@@ -8,22 +8,11 @@
 #include "i2c.h"
 #include "display.h"
 #include "tuner/tuner.h"
-#include "temp.h"
 #include "actions.h"
-
-static uint8_t extFunc;
 
 /* Hardware initialization */
 static void hwInit(void)
 {
-	extFunc = eeprom_read_byte((uint8_t*)EEPROM_EXT_FUNC);
-
-	loadTempParams();
-	if (extFunc == USE_DS18B20) {
-		ds18x20SearchDevices();
-		tempInit();							/* Init temperature control */
-	}
-
 	I2CInit();								/* I2C bus */
 	displayInit();							/* Load params and text labels before fb scan started */
 	rcInit();								/* IR Remote control */
@@ -52,22 +41,7 @@ int main(void)
 	/* Init hardware */
 	hwInit();
 
-	if (extFunc == USE_DS18B20) {
-		ds18x20ConvertTemp();
-		setSensTimer(TEMP_MEASURE_TIME);
-	}
-
 	while (1) {
-		/* Control temperature */
-		if (extFunc == USE_DS18B20) {
-			if (getSensTimer() == 0) {
-				ds18x20GetAllTemps();
-				ds18x20ConvertTemp();
-				setSensTimer(SENSOR_POLL_INTERVAL);
-			}
-			tempControlProcess();
-		}
-
 		/* Emulate poweroff if any of timers expired */
 		if (getStbyTimer() == 0 || getSilenceTimer() == 0)
 			action = CMD_RC_STBY;

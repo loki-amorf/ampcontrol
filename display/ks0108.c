@@ -7,21 +7,12 @@
 
 static volatile uint8_t pins;
 
-#ifdef KS0108B
-#define KS0108_SET_CS1(); \
-	PORT(KS0108_CS1) &= ~KS0108_CS1_LINE; \
-	PORT(KS0108_CS2) |= KS0108_CS2_LINE;
-#define KS0108_SET_CS2(); \
-	PORT(KS0108_CS2) &= ~KS0108_CS2_LINE; \
-	PORT(KS0108_CS1) |= KS0108_CS1_LINE;
-#else
 #define KS0108_SET_CS1(); \
 	PORT(KS0108_CS1) |= KS0108_CS1_LINE; \
 	PORT(KS0108_CS2) &= ~KS0108_CS2_LINE;
 #define KS0108_SET_CS2(x); \
 	PORT(KS0108_CS2) |= KS0108_CS2_LINE; \
 	PORT(KS0108_CS1) &= ~KS0108_CS1_LINE;
-#endif
 
 static uint8_t fb[KS0108_COLS * KS0108_CHIPS][KS0108_ROWS];
 static uint8_t _br;
@@ -177,26 +168,15 @@ ISR (TIMER0_OVF_vect)
 void ks0108Init(void)
 {
 	// Set control and data lines as outputs
-	DDR(KS0108_RW) |= KS0108_RW_LINE;
 	DDR(KS0108_DI) |= KS0108_DI_LINE;
 	DDR(KS0108_E) |= KS0108_E_LINE;
 	DDR(KS0108_CS1) |= KS0108_CS1_LINE;
 	DDR(KS0108_CS2) |= KS0108_CS2_LINE;
-	DDR(KS0108_RES) |= KS0108_RES_LINE;
 
 	ks0108SetDdrOut();
 
-	PORT(KS0108_RW) &= ~(KS0108_RW_LINE);
 	PORT(KS0108_DI) &= ~(KS0108_DI_LINE);
 	PORT(KS0108_E) &= ~(KS0108_E_LINE);
-
-	// Reset
-	PORT(KS0108_RES) &= ~(KS0108_RES_LINE);
-	asm("nop");
-	asm("nop");
-	PORT(KS0108_RES) |= KS0108_RES_LINE;
-	asm("nop");
-	asm("nop");
 
 	// Init first controller
 	KS0108_SET_CS1();

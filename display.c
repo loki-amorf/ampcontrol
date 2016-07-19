@@ -6,8 +6,6 @@
 #include "eeprom.h"
 #include "input.h"
 #include "tuner/tuner.h"
-#include "ds18x20.h"
-#include "temp.h"
 #include "adc.h"
 #include "alarm.h"
 #ifdef _RDS
@@ -471,32 +469,6 @@ void showRcInfo(void)
 	writeStringPgm(STR_SPARRSP);
 	writeStringPgm(STR_PREFIX_HEX);
 	writeNum(eeprom_read_byte((uint8_t*)EEPROM_RC_CMD + rcIndex), 2, '0', 16);
-
-	return;
-}
-
-void showTemp(void)
-{
-	int8_t tempTH = getTempTH();
-
-	gdLoadFont(font_ks0066_ru_08, 1, FONT_DIR_0);
-
-	gdSetXY(0, 48);
-	writeStringPgm(STR_SENSOR1);
-	writeNum(ds18x20GetTemp(0) / 10, 3, ' ', 10);
-	writeStringPgm(STR_DEGREE);
-
-	gdSetXY(0, 56);
-	writeStringPgm(STR_SENSOR2);
-	writeNum(ds18x20GetTemp(1) / 10, 3, ' ', 10);
-	writeStringPgm(STR_DEGREE);
-
-	showParValue(tempTH);
-	showBar(MIN_TEMP, MAX_TEMP, tempTH);
-	gdLoadFont(font_ks0066_ru_24, 1, FONT_DIR_0);
-	gdSetXY(0, 0);
-	writeStringPgm(STR_THRESHOLD);
-	showParIcon(ICON24_THRESHOLD);
 
 	return;
 }

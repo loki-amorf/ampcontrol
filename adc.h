@@ -7,8 +7,8 @@
 
 #define swap(x) (__builtin_avr_swap(x))		/*  Swaps nibbles in byte */
 
-#define MUX_LEFT			0
-#define MUX_RIGHT			1
+#define MUX_LEFT			6
+#define MUX_RIGHT			7
 
 #define DC_CORR				128
 
