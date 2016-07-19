@@ -5,6 +5,7 @@
 #include <avr/eeprom.h>
 
 #include "eeprom.h"
+#include "display.h"
 
 static volatile int8_t encCnt;
 static volatile cmdID cmdBuf;
@@ -13,7 +14,7 @@ static uint8_t silenceTime;
 
 /* Previous state */
 static volatile uint8_t encPrev = ENC_0;
-static volatile uint8_t btnPrev = BTN_STATE_0;
+static volatile uint8_t btnPrev = ENC_0;
 
 static volatile uint16_t displayTime;
 
@@ -38,25 +39,6 @@ void rcCodesInit(void)
 
 void inputInit(void)
 {
-	/* Setup buttons and encoder as inputs with pull-up resistors */
-	DDR(BUTTON_1) &= ~BUTTON_1_LINE;
-	DDR(BUTTON_2) &= ~BUTTON_2_LINE;
-	DDR(BUTTON_3) &= ~BUTTON_3_LINE;
-	DDR(BUTTON_4) &= ~BUTTON_4_LINE;
-	DDR(BUTTON_5) &= ~BUTTON_5_LINE;
-
-	DDR(ENCODER_A) &= ~ENCODER_A_LINE;
-	DDR(ENCODER_B) &= ~ENCODER_B_LINE;
-
-	PORT(BUTTON_1) |= BUTTON_1_LINE;
-	PORT(BUTTON_2) |= BUTTON_2_LINE;
-	PORT(BUTTON_3) |= BUTTON_3_LINE;
-	PORT(BUTTON_4) |= BUTTON_4_LINE;
-	PORT(BUTTON_5) |= BUTTON_5_LINE;
-
-	PORT(ENCODER_A) |= ENCODER_A_LINE;
-	PORT(ENCODER_B) |= ENCODER_B_LINE;
-
 	/* Set timer prescaller to 128 (125 kHz) and reset on match*/
 	TCCR2 = ((1<<CS22) | (0<<CS21) | (1<<CS20) | (1<<WGM21));
 	OCR2 = 125;										/* 125000/125 => 1000 polls/sec */
@@ -92,29 +74,13 @@ ISR (TIMER2_COMP_vect)
 	static uint16_t rcTimer;
 
 	/* Current state */
-	uint8_t encNow = ENC_0;
-	uint8_t btnNow = BTN_STATE_0;
+	uint8_t btnNow = gdGetPins();
+	uint8_t encNow = btnNow;
 
 	if (encRes) {
-		if (~PIN(ENCODER_A) & ENCODER_A_LINE)
-			encNow |= ENC_A;
-		if (~PIN(ENCODER_B) & ENCODER_B_LINE)
-			encNow |= ENC_B;
-	}
+		encNow = btnNow & ENC_AB;
+		btnNow &= ~ENC_AB;
 
-	if (~PIN(BUTTON_1) & BUTTON_1_LINE)
-		btnNow |= BTN_1;
-	if (~PIN(BUTTON_2) & BUTTON_2_LINE)
-		btnNow |= BTN_2;
-	if (~PIN(BUTTON_3) & BUTTON_3_LINE)
-		btnNow |= BTN_3;
-	if (~PIN(BUTTON_4) & BUTTON_4_LINE)
-		btnNow |= BTN_4;
-	if (~PIN(BUTTON_5) & BUTTON_5_LINE)
-		btnNow |= BTN_5;
-
-	/* If encoder event has happened, inc/dec encoder counter */
-	if (encRes) {
 		if ((encPrev == ENC_0 && encNow == ENC_A) ||
 				(encPrev == ENC_A && encNow == ENC_AB) ||
 				(encPrev == ENC_AB && encNow == ENC_B) ||
@@ -125,50 +91,43 @@ ISR (TIMER2_COMP_vect)
 				(encPrev == ENC_AB && encNow == ENC_A) ||
 				(encPrev == ENC_A && encNow == ENC_0))
 			encCnt--;
-		encPrev = encNow;
-	} else {
-		if (~PIN(ENCODER_A) & ENCODER_A_LINE)
-			btnNow |= BTN_A;
-		if (~PIN(ENCODER_B) & ENCODER_B_LINE)
-			btnNow |= BTN_B;
-		encPrev = btnNow & (BTN_A | BTN_B);
+		encPrev = encNow;								/* Save current encoder state */
 	}
-
 	/* If button event has happened, place it to command buffer */
 	if (btnNow) {
 		if (btnNow == btnPrev) {
 			btnCnt++;
 			if (btnCnt == LONG_PRESS) {
 				switch (btnPrev) {
-				case BTN_1:
+				case BTN_D0:
 					cmdBuf = CMD_BTN_1_LONG;
 					break;
-				case BTN_2:
+				case BTN_D1:
 					cmdBuf = CMD_BTN_2_LONG;
 					break;
-				case BTN_3:
+				case BTN_D2:
 					cmdBuf = CMD_BTN_3_LONG;
 					break;
-				case BTN_4:
+				case BTN_D3:
 					cmdBuf = CMD_BTN_4_LONG;
 					break;
-				case BTN_5:
+				case BTN_D4:
 					cmdBuf = CMD_BTN_5_LONG;
 					break;
-				case BTN_12:
+				case BTN_D0 | BTN_D1:
 					cmdBuf = CMD_BTN_12_LONG;
 					break;
-				case BTN_13:
+				case BTN_D0 | BTN_D2:
 					cmdBuf = CMD_BTN_13_LONG;
 					break;
 				}
 			} else if (!encRes) {
 				if (btnCnt == LONG_PRESS + AUTOREPEAT) {
 					switch (btnPrev) {
-					case BTN_A:
+					case ENC_A:
 						encCnt++;
 						break;
-					case BTN_B:
+					case ENC_B:
 						encCnt--;
 						break;
 					}
@@ -181,28 +140,28 @@ ISR (TIMER2_COMP_vect)
 	} else {
 		if ((btnCnt > SHORT_PRESS) && (btnCnt < LONG_PRESS)) {
 			switch (btnPrev) {
-			case BTN_1:
+			case BTN_D0:
 				cmdBuf = CMD_BTN_1;
 				break;
-			case BTN_2:
+			case BTN_D1:
 				cmdBuf = CMD_BTN_2;
 				break;
-			case BTN_3:
+			case BTN_D2:
 				cmdBuf = CMD_BTN_3;
 				break;
-			case BTN_4:
+			case BTN_D3:
 				cmdBuf = CMD_BTN_4;
 				break;
-			case BTN_5:
+			case BTN_D4:
 				cmdBuf = CMD_BTN_5;
 				break;
 			}
 			if (!encRes) {
 				switch (btnPrev) {
-				case BTN_A:
+				case ENC_A:
 					encCnt++;
 					break;
-				case BTN_B:
+				case ENC_B:
 					encCnt--;
 					break;
 				}
