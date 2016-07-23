@@ -156,39 +156,56 @@ void tunerReadStatus(void)
 	return;
 }
 
-void tunerSwitchMono(void)
+void tunerSetMono(uint8_t value)
 {
-	tuner.mono = !tuner.mono;
-
 	switch (tuner.ic) {
 	case TUNER_TEA5767:
 	case TUNER_RDA5807:
 	case TUNER_RDA5802:
 	case TUNER_RDA5807_DF:
+		tuner.mono = value;
 		tunerSetFreq();
 		break;
 	default:
+		tuner.mono = 0;
 		break;
 	}
 
 	return;
 }
 
+void tunerSetRDS(uint8_t value)
+{
+	switch (tuner.ic) {
+	case TUNER_RDA5807:
+	case TUNER_RDA5807_DF:
+		tuner.rds = value;
+		tunerSetFreq();
+		break;
+	default:
+		tuner.rds = 0;
+		break;
+	}
+}
+
 uint8_t tunerStereo(void)
 {
-	uint8_t ret = 1;
+	uint8_t ret = tuner.mono;
+
+	if (ret)
+		return 0;
 
 	switch (tuner.ic) {
 #ifdef _TEA5767
 	case TUNER_TEA5767:
-		ret = TEA5767_BUF_STEREO(bufFM) && !tuner.mono;
+		ret = TEA5767_BUF_STEREO(bufFM);
 		break;
 #endif
 #ifdef _RDA580X
 	case TUNER_RDA5807:
 	case TUNER_RDA5802:
 	case TUNER_RDA5807_DF:
-		ret = RDA5807_BUF_STEREO(bufFM) && !tuner.mono;
+		ret = RDA5807_BUF_STEREO(bufFM);
 		break;
 #endif
 #ifdef _TUX032
@@ -217,7 +234,7 @@ uint8_t tunerLevel(void)
 	case TUNER_RDA5807:
 	case TUNER_RDA5802:
 	case TUNER_RDA5807_DF:
-		ret = (bufFM[2] & RDA5807_RSSI) >> 1;
+		ret = (bufFM[2] & RDA580X_RSSI) >> 1;
 		if (ret < 24)
 			ret = 0;
 		else
@@ -374,7 +391,7 @@ void tunerSetVolume(int8_t value)
 	case TUNER_RDA5807:
 	case TUNER_RDA5802:
 	case TUNER_RDA5807_DF:
-		rda580xSetVolume();
+		rda580xSetAudio();
 		break;
 #endif
 	default:
@@ -398,7 +415,7 @@ void tunerSetMute(uint8_t value)
 	case TUNER_RDA5807:
 	case TUNER_RDA5802:
 	case TUNER_RDA5807_DF:
-		rda580xSetMute();
+		rda580xSetAudio();
 		break;
 #endif
 #ifdef _TUX032
@@ -413,19 +430,19 @@ void tunerSetMute(uint8_t value)
 	return;
 }
 
-void tunerSetBass(int8_t value)
+void tunerSetBass(uint8_t value)
 {
-	tuner.bass = value;
-
 	switch (tuner.ic) {
 #ifdef _RDA580X
 	case TUNER_RDA5807:
 	case TUNER_RDA5802:
 	case TUNER_RDA5807_DF:
-		rda580xSetBass();
+		tuner.bass = value;
+		rda580xSetAudio();
 		break;
 #endif
 	default:
+		tuner.bass = 0;
 		break;
 	}
 }

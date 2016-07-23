@@ -68,16 +68,9 @@ enum {
 
 void pt232xReset(void);
 void pt2322SetVolume(void);
-void pt2322SetBass(void);
-void pt2322SetMiddle(void);
-void pt2322SetTreble(void);
+void pt2322SetBMT(void);
 void pt2322SetSpeakers(void);
-void pt2323SetGain(void);
 void pt2323SetInput(void);
-void pt232xSetMute(void);
-void pt2323SetSurround(void);
-void pt2322SetEffect3d(void);
-void pt2322SetToneDefeat();
-
+void pt232xSetSndFunc(void);
 
 #endif /* PT232X_H */
