@@ -44,7 +44,7 @@ const char STR_RC_SURROUND[]	PROGMEM = "Surround";
 const char STR_RC_EFFECT_3D[]	PROGMEM = "3D effect";
 const char STR_RC_TONE_DEFEAT[]	PROGMEM = "Tone defeat";
 
-const char STR_RC_DEF_DISPLAY[]	PROGMEM = "Display mode";
+const char STR_RC_FM_RDS[]		PROGMEM = "RDS enable";
 const char STR_RC_FM_INC[]		PROGMEM = "Channel +";
 const char STR_RC_FM_DEC[]		PROGMEM = "Channel -";
 const char STR_RC_FM_MODE[]		PROGMEM = "FM tune";
@@ -65,6 +65,7 @@ const char STR_RC_TIME[]		PROGMEM = "Time";
 const char STR_RC_ALARM[]		PROGMEM = "Alarm";
 const char STR_RC_TIMER[]		PROGMEM = "Timer";
 const char STR_RC_BRIGHTNESS[]	PROGMEM = "Brightness";
+const char STR_RC_DEF_DISPLAY[]	PROGMEM = "Display mode";
 const char STR_RC_NEXT_SPMODE[]	PROGMEM = "Spectrum mode";
 const char STR_RC_FALLSPEED[]	PROGMEM = "Fall speed";
 
@@ -86,7 +87,7 @@ PGM_P const rcLabels[] PROGMEM = {
 	STR_RC_EFFECT_3D,
 	STR_RC_TONE_DEFEAT,
 
-	STR_RC_DEF_DISPLAY,
+	STR_RC_FM_RDS,
 	STR_RC_FM_INC,
 	STR_RC_FM_DEC,
 	STR_RC_FM_MODE,
@@ -107,6 +108,7 @@ PGM_P const rcLabels[] PROGMEM = {
 	STR_RC_ALARM,
 	STR_RC_TIMER,
 	STR_RC_BRIGHTNESS,
+	STR_RC_DEF_DISPLAY,
 	STR_RC_NEXT_SPMODE,
 	STR_RC_FALLSPEED,
 };
@@ -142,6 +144,7 @@ const char STR_SPMINUS2[]		PROGMEM = " --";
 
 const char STR_FM[]				PROGMEM = "FM ";
 const char STR_STEREO[]			PROGMEM = "ST";
+const char STR_MONO[]			PROGMEM = "MO";
 const char STR_TUNE[]			PROGMEM = "\xDB\xDB\xD0\xDC\xDC";
 const char STR_RDS[]			PROGMEM = "RDS";
 
@@ -533,7 +536,9 @@ void showRadio(uint8_t tune)
 	/* Stereo indicator */
 	gdLoadFont(font_ks0066_ru_08, 1, FONT_DIR_0);
 	gdSetXY(116, 12);
-	if (tunerStereo())
+	if (tuner.mono)
+		writeStringPgm(STR_MONO);
+	else if (tunerStereo())
 		writeStringPgm(STR_STEREO);
 	else
 		writeStringPgm(STR_SPACE2);
@@ -579,7 +584,7 @@ void showRadio(uint8_t tune)
 	} else {
 		gdSetXY(110, 56);
 #ifdef _RDS
-		if (rdsGetFlag())
+		if (tuner.rds)
 			writeStringPgm(STR_RDS);
 		else
 			writeStringPgm(STR_SPACE3);
