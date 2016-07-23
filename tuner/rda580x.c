@@ -103,7 +103,7 @@ uint8_t *rda580xReadStatus(void)
 #ifdef _RDS
 	if (tuner.rds) {
 		/* If seek/tune is complete and current channel is a station */
-		if ((rdBuf[0] & RDA580X_STC) && (rdBuf[2] & RDA580X_FM_TRUE)) {
+//		if ((rdBuf[0] & RDA580X_STC) && (rdBuf[2] & RDA580X_FM_TRUE)) {
 			/* If RDS ready and sync flag are set */
 			if ((rdBuf[0] & RDA5807_RDSR) && (rdBuf[0] & RDA5807_RDSS)) {
 				/* If there are no errors in blocks A and B */
@@ -112,7 +112,7 @@ uint8_t *rda580xReadStatus(void)
 					rdsSetBlocks(&rdBuf[4]);
 				}
 			}
-		}
+//		}
 	}
 #endif
 
