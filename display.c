@@ -513,6 +513,7 @@ void showRadio(uint8_t tune)
 	uint8_t level = tunerLevel();
 	uint8_t num = tunerStationNum();
 	uint8_t favNum = tunerFavStationNum();
+	uint8_t rdsFlag = rdsGetFlag();
 
 	/* Frequency value */
 	gdLoadFont(font_ks0066_ru_24, 1, FONT_DIR_0);
@@ -565,13 +566,13 @@ void showRadio(uint8_t tune)
 
 	/* Select between RDS and spectrum mode */
 #ifdef _RDS
-	if (rdsGetFlag()) {
+	if (rdsFlag) {
 		gdLoadFont(font_ks0066_ru_24, 1, FONT_DIR_0);
 		gdSetFontFixed(12);
 		gdSetXY(0, 40);
 		writeString(rdsGetText());
-		gdDrawFilledRect(gdGetX(), 40, 103 - gdGetX(), 24, 0);
 	} else {
+		gdDrawFilledRect(93, 40, 3, 24, 0);
 		drawBarSpectrum();
 	}
 #else
