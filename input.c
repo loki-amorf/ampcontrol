@@ -12,20 +12,21 @@ static volatile cmdID cmdBuf;
 static int8_t encRes = 0;
 static uint8_t silenceTime;
 
-/* Previous state */
+// Previous state
 static volatile uint8_t encPrev = ENC_0;
 static volatile uint8_t btnPrev = ENC_0;
 
 static volatile uint16_t displayTime;
 
-static volatile int16_t stbyTimer = STBY_TIMER_OFF;	/* Standby timer */
-static volatile uint16_t secTimer;					/* 1 second timer */
+static volatile int16_t stbyTimer = STBY_TIMER_OFF;	// Standby timer
+static volatile int16_t initTimer = STBY_TIMER_OFF;	// Init timer
+static volatile uint16_t secTimer;					// 1 second timer
 static volatile uint8_t clockTimer;
-static volatile int16_t silenceTimer;				/* Timer to check silence */
+static volatile int16_t silenceTimer;				// Timer to check silence
 
 static uint8_t rcType;
 static uint8_t rcAddr;
-static uint8_t rcCode[CMD_RC_END];					/* Array with rc commands */
+static uint8_t rcCode[CMD_RC_END];					// Array with rc commands
 
 void rcCodesInit(void)
 {
@@ -38,12 +39,11 @@ void rcCodesInit(void)
 
 void inputInit(void)
 {
-	/* Set timer prescaller to 128 (125 kHz) and reset on match*/
+	// Set timer prescaller to 128 (125 kHz) and reset on match
 	TCCR2B = (1<<CS22) | (0<<CS21) | (1<<CS20);
 	TCCR2A = (1<<WGM21);
-	OCR2A = 125;										/* 125000/125 => 1000 polls/sec */
-	TCNT2 = 0;										/* Reset timer value */
-	TIMSK2 |= (1<<OCIE2A);							/* Enable timer compare match interrupt */
+	OCR2A = 125;									// 125000/125 => 1000 polls/sec
+	TIMSK2 |= (1<<OCIE2A);							// Enable timer compare match interrupt
 
 	rcCodesInit();
 
@@ -69,10 +69,10 @@ static uint8_t rcCmdIndex(uint8_t cmd)
 
 ISR (TIMER2_COMPA_vect)
 {
-	static int16_t btnCnt = 0;						/* Buttons press duration value */
+	static int16_t btnCnt = 0;						// Buttons press duration value
 	static uint16_t rcTimer;
 
-	/* Current state */
+	// Current state
 	uint8_t btnNow = gdGetPins();
 	uint8_t encNow = btnNow;
 
@@ -90,9 +90,9 @@ ISR (TIMER2_COMPA_vect)
 				(encPrev == ENC_AB && encNow == ENC_A) ||
 				(encPrev == ENC_A && encNow == ENC_0))
 			encCnt--;
-		encPrev = encNow;								/* Save current encoder state */
+		encPrev = encNow;								// Save current encoder state
 	}
-	/* If button event has happened, place it to command buffer */
+	// If button event has happened, place it to command buffer
 	if (btnNow) {
 		if (btnNow == btnPrev) {
 			btnCnt++;
@@ -167,7 +167,7 @@ ISR (TIMER2_COMPA_vect)
 	}
 	btnPrev = btnNow;
 
-	/* Place RC event to command buffer if enough RC timer ticks */
+	// Place RC event to command buffer if enough RC timer ticks
 	IRData ir = takeIrData();
 
 	uint8_t rcCmdBuf = CMD_RC_END;
@@ -188,11 +188,11 @@ ISR (TIMER2_COMPA_vect)
 	if (cmdBuf == CMD_RC_END)
 		cmdBuf = rcCmdBuf;
 
-	/* Timer of current display mode */
+	// Timer of current display mode
 	if (displayTime)
 		displayTime--;
 
-	/* Time from last IR command */
+	// Time from last IR command
 	if (rcTimer < 1000)
 		rcTimer++;
 
@@ -201,21 +201,24 @@ ISR (TIMER2_COMPA_vect)
 		secTimer--;
 	} else {
 		secTimer = 1000;
-		/* Timer of standby mode */
-		if (stbyTimer >= 0)
+		// Timer of standby mode
+		if (stbyTimer > 0)
 			stbyTimer--;
-		/* Silence timer */
-		if (silenceTimer >= 0)
+		// Silence timer
+		if (silenceTimer > 0)
 			silenceTimer--;
 	}
 
-	/* Timer clock update */
+	// Timer clock update
 	if (clockTimer)
 		clockTimer--;
 
+	// Init timer
+	if (initTimer)
+		initTimer--;
 
 	return;
-};
+}
 
 
 int8_t getEncoder(void)
@@ -333,4 +336,18 @@ int16_t getSilenceTimer(void)
 void disableSilenceTimer(void)
 {
 	silenceTimer = STBY_TIMER_OFF;
+
+	return;
+}
+
+void setInitTimer(int16_t value)
+{
+	initTimer = value;
+
+	return;
+}
+
+int16_t getInitTimer(void)
+{
+	return initTimer;
 }
