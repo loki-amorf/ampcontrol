@@ -2,7 +2,7 @@ DISPLAY = KS0108
 
 TARG = ampcontrol_m328_$(shell echo $(DISPLAY) | tr A-Z a-z)
 
-MCU = atmega328
+MCU = atmega328p
 F_CPU = 16000000L
 
 AUDIO_SRC = $(wildcard audio/*.c)
@@ -74,7 +74,7 @@ flash: $(ELF)
 	$(AVRDUDE) $(AD_CMDLINE) -U flash:w:flash/$(TARG).hex:i
 
 fuse:
-	$(AVRDUDE) $(AD_CMDLINE) -U lfuse:w:0x3F:m -U hfuse:w:0xC1:m
+	$(AVRDUDE) $(AD_CMDLINE) -U lfuse:w:0xff:m -U hfuse:w:0xd1:m -U efuse:w:0xfc:m
 
 eeprom_en:
 	$(AVRDUDE) $(AD_CMDLINE) -U eeprom:w:eeprom/eeprom_en.bin:r
