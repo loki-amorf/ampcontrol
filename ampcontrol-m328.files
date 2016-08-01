@@ -61,3 +61,5 @@ remote.c
 remote.h
 rtc.c
 rtc.h
+uart.c
+uart.h
