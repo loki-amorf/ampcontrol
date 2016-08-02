@@ -20,10 +20,11 @@ static volatile uint16_t displayTime;
 
 static volatile uint16_t sensTimer;					// Timer of temperature measuring process
 static volatile int16_t stbyTimer = STBY_TIMER_OFF;	// Standby timer
-static volatile int16_t initTimer = STBY_TIMER_OFF;	// Init timer
+static volatile int16_t initTimer = INIT_TIMER_OFF;	// Init timer
 static volatile uint16_t secTimer;					// 1 second timer
 static volatile uint8_t clockTimer;
 static volatile int16_t silenceTimer;				// Timer to check silence
+static volatile uint16_t rcTimer;
 
 static uint8_t rcType;
 static uint8_t rcAddr;
@@ -72,7 +73,6 @@ static uint8_t rcCmdIndex(uint8_t cmd)
 ISR (TIMER2_COMP_vect)
 {
 	static int16_t btnCnt = 0;						// Buttons press duration value
-	static uint16_t rcTimer;
 
 	// Current state
 	uint8_t btnNow = gdGetPins();
@@ -173,27 +173,6 @@ ISR (TIMER2_COMP_vect)
 	}
 	btnPrev = btnNow;
 
-	// Place RC event to command buffer if enough RC timer ticks
-	IRData ir = takeIrData();
-
-	uint8_t rcCmdBuf = CMD_RC_END;
-
-	if (ir.ready && (ir.type == rcType) && (ir.address == rcAddr)) {
-		if (!ir.repeat || (rcTimer > 800)) {
-			rcTimer = 0;
-			rcCmdBuf = rcCmdIndex(ir.command);
-		}
-		if (ir.command == rcCode[CMD_RC_VOL_UP] || ir.command == rcCode[CMD_RC_VOL_DOWN]) {
-			if (rcTimer > 400) {
-				rcTimer = 360;
-				rcCmdBuf = rcCmdIndex(ir.command);
-			}
-		}
-	}
-
-	if (cmdBuf == CMD_RC_END)
-		cmdBuf = rcCmdBuf;
-
 	// Timer of current display mode
 	if (displayTime)
 		displayTime--;
@@ -223,7 +202,7 @@ ISR (TIMER2_COMP_vect)
 		clockTimer--;
 
 	// Init timer
-	if (initTimer)
+	if (initTimer > 0)
 		initTimer--;
 
 
@@ -268,6 +247,29 @@ cmdID getBtnCmd(void)
 	cmdID ret = cmdBuf;
 	cmdBuf = CMD_RC_END;
 	return ret;
+}
+
+cmdID getRcCmd(void)
+{
+	// Place RC event to command buffer if enough RC timer ticks
+	IRData ir = takeIrData();
+
+	uint8_t rcCmdBuf = CMD_RC_END;
+
+	if (ir.ready && (ir.type == rcType) && (ir.address == rcAddr)) {
+		if (!ir.repeat || (rcTimer > 800)) {
+			rcTimer = 0;
+			rcCmdBuf = rcCmdIndex(ir.command);
+		}
+		if (ir.command == rcCode[CMD_RC_VOL_UP] || ir.command == rcCode[CMD_RC_VOL_DOWN]) {
+			if (rcTimer > 400) {
+				rcTimer = 360;
+				rcCmdBuf = rcCmdIndex(ir.command);
+			}
+		}
+	}
+
+	return rcCmdBuf;
 }
 
 uint16_t getBtnBuf(void)
