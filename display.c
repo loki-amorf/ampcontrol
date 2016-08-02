@@ -247,11 +247,11 @@ static void showParValue(int8_t value)
 	return;
 }
 
-static void showParLabel(const uint8_t *parLabel)
+static void showParLabel(uint8_t label)
 {
 	gdLoadFont(font_ks0066_ru_24, 1, FONT_DIR_0);
 	gdSetXY(0, 0);
-	writeStringEeprom(parLabel);
+	writeStringEeprom(txtLabels[label]);
 
 	return;
 }
@@ -607,7 +607,7 @@ void showRadio(uint8_t tune)
 
 void showMute(void)
 {
-	showParLabel(txtLabels[LABEL_MUTE]);
+	showParLabel(LABEL_MUTE);
 	drawMiniSpectrum();
 
 	gdSetXY(96, 32);
@@ -621,7 +621,7 @@ void showMute(void)
 
 void showLoudness(void)
 {
-	showParLabel(txtLabels[LABEL_LOUDNESS]);
+	showParLabel(LABEL_LOUDNESS);
 	drawMiniSpectrum();
 
 	gdSetXY(96, 32);
@@ -635,7 +635,7 @@ void showLoudness(void)
 
 void showSurround()
 {
-	showParLabel(txtLabels[LABEL_SURROUND]);
+	showParLabel(LABEL_SURROUND);
 	drawMiniSpectrum();
 
 	gdSetXY(96, 32);
@@ -649,7 +649,7 @@ void showSurround()
 
 void showEffect3d()
 {
-	showParLabel(txtLabels[LABEL_EFFECT_3D]);
+	showParLabel(LABEL_EFFECT_3D);
 	drawMiniSpectrum();
 
 	gdSetXY(96, 32);
@@ -663,7 +663,7 @@ void showEffect3d()
 
 void showToneDefeat()
 {
-	showParLabel(txtLabels[LABEL_TONE_DEFEAT]);
+	showParLabel(LABEL_TONE_DEFEAT);
 	drawMiniSpectrum();
 
 	gdSetXY(96, 32);
@@ -678,7 +678,7 @@ void showToneDefeat()
 
 void showBrWork(void)
 {
-	showParLabel(txtLabels[LABEL_BR_WORK]);
+	showParLabel(LABEL_BR_WORK);
 	showBar(MIN_BRIGHTNESS, MAX_BRIGHTNESS, brWork);
 
 	showParValue(brWork);
@@ -704,7 +704,7 @@ void showSndParam(sndMode mode)
 {
 	sndParam *param = &sndPar[mode];
 
-	showParLabel(param->label);
+	showParLabel(mode);
 	showParValue(((int16_t)(param->value) * (int8_t)pgm_read_byte(&param->grid->step) + 4) >> 3);
 	showBar((int8_t)pgm_read_byte(&param->grid->min), (int8_t)pgm_read_byte(&param->grid->max), param->value);
 
