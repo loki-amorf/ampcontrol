@@ -256,10 +256,17 @@ static void showParLabel(const uint8_t *parLabel)
 	return;
 }
 
-static void showParIcon(const uint8_t iconNum)
+static void showParIcon(uint8_t icon)
 {
+	uint8_t ic = icon;
+
+	if (ic >= MODE_SND_GAIN0 && ic < MODE_SND_END)
+		ic = eeprom_read_byte((uint8_t*)(EEPROM_INPUT_ICONS + (ic - MODE_SND_GAIN0)));
+	if (ic < ICON24_END)
+		icon = ic;
+
 	gdSetXY(104, 2);
-	gdWriteIcon24(iconNum);
+	gdWriteIcon24(icon);
 
 	return;
 }
@@ -702,7 +709,7 @@ void showSndParam(sndMode mode)
 	showBar((int8_t)pgm_read_byte(&param->grid->min), (int8_t)pgm_read_byte(&param->grid->max), param->value);
 
 	drawBarSpectrum();
-	showParIcon(param->icon);
+	showParIcon(mode);
 
 	gdLoadFont(font_ks0066_ru_08, 1, FONT_DIR_0);
 	gdSetXY(116, 56);
@@ -752,21 +759,20 @@ void showAlarm(void)
 	writeStringPgm(STR_SPCOLSP);
 	drawAm(RTC_A0_MIN, font_digits_32);
 
-	/* Draw input icon selection rectangle */
+	/* Draw input icon selection */
 	if (getEam() == RTC_A0_INPUT) {
-		gdDrawRect(96, 0, 32, 32, 1);
-		gdDrawRect(97, 1, 30, 30, 1);
+		gdDrawFilledRect(99, 2, 3, 26, 1);
+		gdDrawFilledRect(99, 28, 29, 3, 1);
 	} else {
-		gdDrawRect(96, 0, 32, 32, 0);
-		gdDrawRect(97, 1, 30, 30, 0);
+		gdDrawFilledRect(99, 2, 3, 26, 0);
+		gdDrawFilledRect(99, 28, 29, 3, 0);
 	}
 
 	/* Check that input number less than CHAN_CNT */
 	i = getAlarm(RTC_A0_INPUT);
 	if (i >= aproc.inCnt)
 		i = 0;
-	gdSetXY(100, 4);
-	gdWriteIcon24(sndPar[MODE_SND_GAIN0 + i].icon);
+	showParIcon(MODE_SND_GAIN0 + i);
 
 	/* Draw weekdays selection rectangle */
 	if (getEam() == RTC_A0_WDAY) {
