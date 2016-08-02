@@ -714,7 +714,6 @@ void showTime(void)
 
 void showAlarm(void)
 {
-
 	uint8_t i;
 	uint8_t *label;
 
@@ -733,11 +732,11 @@ void showAlarm(void)
 		gdDrawRect(97, 1, 30, 30, 0);
 	}
 
-	gdSetXY(100, 4);
 	/* Check that input number less than CHAN_CNT */
 	i = getAlarm(RTC_A0_INPUT);
 	if (i >= aproc.inCnt)
 		i = 0;
+	gdSetXY(100, 4);
 	gdWriteIcon24(sndPar[MODE_SND_GAIN0 + i].icon);
 
 	/* Draw weekdays selection rectangle */
