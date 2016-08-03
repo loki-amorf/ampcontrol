@@ -5,6 +5,7 @@
 #include "tuner/tuner.h"
 #include "adc.h"
 #include "alarm.h"
+#include "uart.h"
 
 static uint8_t dispMode = MODE_STANDBY;
 static uint8_t dispModePrev = MODE_STANDBY;
@@ -42,6 +43,13 @@ uint8_t getAction(void)
 	/* Handle commands from remote control */
 	if (cmd < CMD_RC_END)
 		action = cmd;
+
+	/* Handle commands from UART */
+	UARTData uartData = getUartData();
+	if (uartData.type == UART_CMD_RC) {
+		if (uartData.command < CMD_RC_END)
+			action = uartData.command;
+	}
 
 	/* Handle commands from buttons*/
 	switch (cmd) {
