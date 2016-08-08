@@ -329,8 +329,8 @@ static void drawTm(uint8_t tm, const uint8_t *font)
 
 static void drawAm(uint8_t am, const uint8_t *font)
 {
-	gdLoadFont(font, getEam() == am ? 0 : 1, FONT_DIR_0);
-	writeNum(getAlarm(am), 2, '0', 10);
+	gdLoadFont(font, alarm0.eam == am ? 0 : 1, FONT_DIR_0);
+	writeNum(*((int8_t*)&alarm0 + am), 2, '0', 10);
 	gdLoadFont(font, 1, FONT_DIR_0);
 
 	return;
@@ -755,12 +755,12 @@ void showAlarm(void)
 
 	gdSetXY(4, 0);
 
-	drawAm(RTC_A0_HOUR, font_digits_32);
+	drawAm(ALARM_HOUR, font_digits_32);
 	writeStringPgm(STR_SPCOLSP);
-	drawAm(RTC_A0_MIN, font_digits_32);
+	drawAm(ALARM_MIN, font_digits_32);
 
 	/* Draw input icon selection */
-	if (getEam() == RTC_A0_INPUT) {
+	if (alarm0.eam == ALARM_INPUT) {
 		gdDrawFilledRect(99, 2, 3, 26, 1);
 		gdDrawFilledRect(99, 28, 29, 3, 1);
 	} else {
@@ -769,13 +769,13 @@ void showAlarm(void)
 	}
 
 	/* Check that input number less than CHAN_CNT */
-	i = getAlarm(RTC_A0_INPUT);
+	i = alarm0.input;
 	if (i >= aproc.inCnt)
 		i = 0;
 	showParIcon(MODE_SND_GAIN0 + i);
 
 	/* Draw weekdays selection rectangle */
-	if (getEam() == RTC_A0_WDAY) {
+	if (alarm0.eam == ALARM_WDAY) {
 		gdDrawRect(0, 34, 128, 30, 1);
 		gdDrawRect(1, 35, 126, 28, 1);
 	} else {
@@ -793,7 +793,7 @@ void showAlarm(void)
 		gdWriteChar(eeprom_read_byte(&label[i * 2 + 1]));
 
 		gdDrawRect(3 + 18 * i, 47, 14, 14, 1);
-		if (getAlarm(RTC_A0_WDAY) & (0x40 >> i))
+		if (alarm0.wday & (0x40 >> i))
 			gdDrawFilledRect(5 + 18 * i, 49, 10, 10, 1);
 		else
 			gdDrawFilledRect(5 + 18 * i, 49, 10, 10, 0);
