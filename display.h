@@ -3,6 +3,7 @@
 
 #include <inttypes.h>
 #include "rtc.h"
+#include "alarm.h"
 #include "audio/audio.h"
 #include "display/gdfb.h"
 
