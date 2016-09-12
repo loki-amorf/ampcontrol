@@ -99,4 +99,6 @@ void setStbyBrightness(void);
 
 void displayPowerOff(void);
 
+void displayUpdate(void);
+
 #endif /* DISPLAY_H */
