@@ -26,6 +26,8 @@ display/icons-32.c
 display/icons.h
 display/ks0108.c
 display/ks0108.h
+display/ssd1306.c
+display/ssd1306.h
 display/st7920.c
 display/st7920.h
 

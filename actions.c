@@ -628,6 +628,8 @@ void showScreen(void)
 		break;
 	}
 
+	displayUpdate();
+
 	/* Save current mode */
 	dispModePrev = dispMode;
 
