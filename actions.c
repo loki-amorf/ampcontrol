@@ -534,6 +534,9 @@ uint8_t checkAlarmAndTime(void)
 				sndSetInput(alarm0.input);
 				ret = ACTION_EXIT_STANDBY;
 			}
+			if (getSignalLevel() > 5) {
+				ret = ACTION_EXIT_STANDBY;
+			}
 		}
 
 		setClockTimer(200);					/* Limit check interval */
