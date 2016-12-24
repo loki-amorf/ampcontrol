@@ -288,8 +288,6 @@ static void drawBarSpectrum(void)
 	uint8_t x, xbase;
 	uint8_t ybase;
 
-	getSpData(fallSpeed);
-
 	for (x = 0; x < GD_SIZE_X / 4 - 1; x++) {
 		xbase = x * 3;
 
@@ -303,7 +301,6 @@ static void drawBarSpectrum(void)
 
 static void drawMiniSpectrum(void)
 {
-	getSpData(fallSpeed);
 	uint8_t x, xbase;
 	uint8_t ybase;
 
@@ -795,8 +792,6 @@ void showTimer(int16_t timer)
 		writeStringPgm(STR_MINUS2);
 	}
 
-	getSpData(fallSpeed);
-
 	for (x = 0; x < GD_SIZE_X / 4; x++) {
 		xbase = x << 2;
 
@@ -824,9 +819,15 @@ void switchFallSpeed(void)
 	return;
 }
 
-void showSpectrum(void)
+
+void getSpectrum(void)
 {
 	getSpData(fallSpeed);
+	return;
+}
+
+void showSpectrum(void)
+{
 	uint16_t left, right;
 
 	uint8_t x, xbase;

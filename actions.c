@@ -575,6 +575,8 @@ void handleModeChange(void)
 
 void showScreen(void)
 {
+	getSpectrum();
+
 	switch (dispMode) {
 	case MODE_STANDBY:
 		showTime();

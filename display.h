@@ -90,6 +90,7 @@ void showTimer(int16_t timer);
 
 void switchSpMode(void);
 void switchFallSpeed(void);
+void getSpectrum(void);
 void showSpectrum(void);
 
 void setWorkBrightness(void);
